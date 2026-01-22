@@ -2,14 +2,13 @@ import Head from "next/head";
 import React, { useMemo, useState } from "react";
 
 function parseMoney(v: string) {
-  // Accept: 1234 | 1,234.56 | $1,234.56
   const cleaned = (v || "").replace(/[^0-9.]/g, "");
   const n = Number(cleaned);
   return Number.isFinite(n) ? n : NaN;
 }
 
 function sanitizeNumericInput(value: string) {
-  // allow digits + one dot; strip everything else
+  // Allow digits + one dot; strip everything else
   let v = (value || "").replace(/[^0-9.]/g, "");
   const firstDot = v.indexOf(".");
   if (firstDot !== -1) {
@@ -24,27 +23,33 @@ function formatPct(n: number) {
 }
 
 export default function Home() {
-  const [adSales, setAdSales] = useState("");
+  // Ad Spend first
   const [adSpend, setAdSpend] = useState("");
+  const [adRevenue, setAdRevenue] = useState("");
   const [showResult, setShowResult] = useState(false);
 
-  const adSalesNum = useMemo(() => parseMoney(adSales), [adSales]);
+  // Helper text on focus
+  const [focusedField, setFocusedField] = useState<
+    "spend" | "revenue" | null
+  >(null);
+
   const adSpendNum = useMemo(() => parseMoney(adSpend), [adSpend]);
+  const adRevenueNum = useMemo(() => parseMoney(adRevenue), [adRevenue]);
 
   const canCalculate =
-    Number.isFinite(adSalesNum) &&
+    Number.isFinite(adRevenueNum) &&
     Number.isFinite(adSpendNum) &&
-    adSalesNum > 0;
+    adRevenueNum > 0;
 
-  const acos = canCalculate ? (adSpendNum / adSalesNum) * 100 : NaN;
+  const acos = canCalculate ? (adSpendNum / adRevenueNum) * 100 : NaN;
 
   function onCalculate() {
     setShowResult(true);
   }
 
   function onClear() {
-    setAdSales("");
     setAdSpend("");
+    setAdRevenue("");
     setShowResult(false);
   }
 
@@ -60,13 +65,13 @@ export default function Home() {
         <title>Amazon ACoS Calculator</title>
         <meta
           name="description"
-          content="Calculate your Amazon Advertising Cost of Sales (ACoS) using Ad Sales and Ad Spend."
+          content="Calculate your Amazon Advertising Cost of Sales (ACoS) using Ad Spend and Ad Revenue."
         />
       </Head>
 
       <div className="min-h-screen bg-[#f8fafc]">
         <div className="mx-auto max-w-5xl px-4 pt-12 pb-16">
-          {/* Optional breadcrumbs */}
+          {/* Breadcrumbs */}
           <div className="mb-8 flex justify-center text-sm text-gray-500">
             <span className="hover:text-gray-700 cursor-pointer">Home</span>
             <span className="mx-2 text-[#F7C948]">→</span>
@@ -82,7 +87,6 @@ export default function Home() {
               Amazon ACoS Calculator
             </h1>
 
-            {/* Less height between both lines */}
             <div className="mt-4 text-lg text-gray-600 leading-snug">
               <div>
                 Calculate your{" "}
@@ -92,7 +96,7 @@ export default function Home() {
                 instantly.
               </div>
               <div className="mt-1">
-                Enter your ad sales and ad spend, then click calculate.
+                Enter your ad spend and ad revenue, then click calculate.
               </div>
             </div>
           </div>
@@ -101,40 +105,70 @@ export default function Home() {
             <div className="w-full max-w-3xl rounded-3xl bg-white p-8 shadow-sm border border-gray-100">
               {/* Form enables Enter key submit */}
               <form onSubmit={onSubmit} className="space-y-5">
-                <div>
-                  <div className="mb-2 font-medium text-gray-900">
-                    Ad Sales ($)
-                  </div>
-                  <input
-                    inputMode="decimal"
-                    autoComplete="off"
-                    spellCheck={false}
-                    value={adSales}
-                    onChange={(e) => {
-                      setAdSales(sanitizeNumericInput(e.target.value));
-                      setShowResult(false);
-                    }}
-                    placeholder="e.g. 1500"
-                    className="w-full h-12 rounded-full border border-gray-200 px-5 outline-none focus:border-gray-300"
-                  />
-                </div>
-
+                {/* Ad Spend FIRST */}
                 <div>
                   <div className="mb-2 font-medium text-gray-900">
                     Ad Spend ($)
                   </div>
                   <input
+                    type="text"
                     inputMode="decimal"
                     autoComplete="off"
                     spellCheck={false}
                     value={adSpend}
+                    onFocus={() => setFocusedField("spend")}
+                    onBlur={() => setFocusedField(null)}
                     onChange={(e) => {
                       setAdSpend(sanitizeNumericInput(e.target.value));
+                      setShowResult(false);
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const text = e.clipboardData.getData("text");
+                      setAdSpend(sanitizeNumericInput(text));
                       setShowResult(false);
                     }}
                     placeholder="e.g. 300"
                     className="w-full h-12 rounded-full border border-gray-200 px-5 outline-none focus:border-gray-300"
                   />
+                  {focusedField === "spend" && (
+                    <div className="mt-2 text-sm text-gray-500">
+                      Enter your total ad spend (numbers only).
+                    </div>
+                  )}
+                </div>
+
+                {/* Ad Revenue SECOND */}
+                <div>
+                  <div className="mb-2 font-medium text-gray-900">
+                    Ad Revenue ($)
+                  </div>
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    autoComplete="off"
+                    spellCheck={false}
+                    value={adRevenue}
+                    onFocus={() => setFocusedField("revenue")}
+                    onBlur={() => setFocusedField(null)}
+                    onChange={(e) => {
+                      setAdRevenue(sanitizeNumericInput(e.target.value));
+                      setShowResult(false);
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const text = e.clipboardData.getData("text");
+                      setAdRevenue(sanitizeNumericInput(text));
+                      setShowResult(false);
+                    }}
+                    placeholder="e.g. 1500"
+                    className="w-full h-12 rounded-full border border-gray-200 px-5 outline-none focus:border-gray-300"
+                  />
+                  {focusedField === "revenue" && (
+                    <div className="mt-2 text-sm text-gray-500">
+                      Enter your ad-attributed revenue (numbers only).
+                    </div>
+                  )}
                 </div>
 
                 <button
@@ -162,7 +196,7 @@ export default function Home() {
                     <div className="mt-2 text-sm text-gray-700">
                       Formula:{" "}
                       <span className="font-semibold">
-                        (Ad Spend ÷ Ad Sales) × 100
+                        (Ad Spend ÷ Ad Revenue) × 100
                       </span>
                     </div>
 
@@ -188,4 +222,3 @@ export default function Home() {
     </>
   );
 }
-
