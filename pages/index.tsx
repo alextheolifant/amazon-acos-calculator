@@ -8,6 +8,16 @@ function parseMoney(v: string) {
   return Number.isFinite(n) ? n : NaN;
 }
 
+function sanitizeNumericInput(value: string) {
+  // allow digits + one dot; strip everything else
+  let v = (value || "").replace(/[^0-9.]/g, "");
+  const firstDot = v.indexOf(".");
+  if (firstDot !== -1) {
+    v = v.slice(0, firstDot + 1) + v.slice(firstDot + 1).replace(/\./g, "");
+  }
+  return v;
+}
+
 function formatPct(n: number) {
   if (!Number.isFinite(n)) return "—";
   return `${n.toFixed(2)}%`;
@@ -62,7 +72,9 @@ export default function Home() {
             <span className="mx-2 text-[#F7C948]">→</span>
             <span className="hover:text-gray-700 cursor-pointer">Tools</span>
             <span className="mx-2 text-[#F7C948]">→</span>
-            <span className="font-medium text-gray-900">Amazon ACoS Calculator</span>
+            <span className="font-medium text-gray-900">
+              Amazon ACoS Calculator
+            </span>
           </div>
 
           <div className="text-center">
@@ -90,12 +102,16 @@ export default function Home() {
               {/* Form enables Enter key submit */}
               <form onSubmit={onSubmit} className="space-y-5">
                 <div>
-                  <div className="mb-2 font-medium text-gray-900">Ad Sales ($)</div>
+                  <div className="mb-2 font-medium text-gray-900">
+                    Ad Sales ($)
+                  </div>
                   <input
                     inputMode="decimal"
+                    autoComplete="off"
+                    spellCheck={false}
                     value={adSales}
                     onChange={(e) => {
-                      setAdSales(e.target.value);
+                      setAdSales(sanitizeNumericInput(e.target.value));
                       setShowResult(false);
                     }}
                     placeholder="e.g. 1500"
@@ -104,12 +120,16 @@ export default function Home() {
                 </div>
 
                 <div>
-                  <div className="mb-2 font-medium text-gray-900">Ad Spend ($)</div>
+                  <div className="mb-2 font-medium text-gray-900">
+                    Ad Spend ($)
+                  </div>
                   <input
                     inputMode="decimal"
+                    autoComplete="off"
+                    spellCheck={false}
                     value={adSpend}
                     onChange={(e) => {
-                      setAdSpend(e.target.value);
+                      setAdSpend(sanitizeNumericInput(e.target.value));
                       setShowResult(false);
                     }}
                     placeholder="e.g. 300"
@@ -133,13 +153,17 @@ export default function Home() {
                 {/* Result only after submit/click */}
                 {showResult ? (
                   <div className="mt-6 rounded-2xl border border-gray-100 bg-[#fbf6e7] p-6 text-center">
-                    <div className="text-sm font-semibold text-gray-700">Your ACoS is</div>
+                    <div className="text-sm font-semibold text-gray-700">
+                      Your ACoS is
+                    </div>
                     <div className="mt-2 text-5xl font-bold text-gray-900">
                       {formatPct(acos)}
                     </div>
                     <div className="mt-2 text-sm text-gray-700">
                       Formula:{" "}
-                      <span className="font-semibold">(Ad Spend ÷ Ad Sales) × 100</span>
+                      <span className="font-semibold">
+                        (Ad Spend ÷ Ad Sales) × 100
+                      </span>
                     </div>
 
                     <button
@@ -156,10 +180,12 @@ export default function Home() {
           </div>
 
           <div className="mt-8 text-center text-xs text-gray-400">
-            Tip: A “good” ACoS depends on your margins and goals (ranking vs profit).
+            Tip: A “good” ACoS depends on your margins and goals (ranking vs
+            profit).
           </div>
         </div>
       </div>
     </>
   );
 }
+
