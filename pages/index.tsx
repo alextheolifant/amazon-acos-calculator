@@ -2,6 +2,7 @@ import Head from "next/head";
 import React, { useMemo, useState } from "react";
 
 function parseMoney(v: string) {
+  // Accept: 1234 | 1,234.56 | $1,234.56
   const cleaned = (v || "").replace(/[^0-9.]/g, "");
   const n = Number(cleaned);
   return Number.isFinite(n) ? n : NaN;
@@ -27,6 +28,22 @@ export default function Home() {
 
   const acos = canCalculate ? (adSpendNum / adSalesNum) * 100 : NaN;
 
+  function onCalculate() {
+    setShowResult(true);
+  }
+
+  function onClear() {
+    setAdSales("");
+    setAdSpend("");
+    setShowResult(false);
+  }
+
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!canCalculate) return;
+    onCalculate();
+  }
+
   return (
     <>
       <Head>
@@ -39,11 +56,21 @@ export default function Home() {
 
       <div className="min-h-screen bg-[#f8fafc]">
         <div className="mx-auto max-w-5xl px-4 pt-12 pb-16">
+          {/* Optional breadcrumbs */}
+          <div className="mb-8 flex justify-center text-sm text-gray-500">
+            <span className="hover:text-gray-700 cursor-pointer">Home</span>
+            <span className="mx-2 text-[#F7C948]">→</span>
+            <span className="hover:text-gray-700 cursor-pointer">Tools</span>
+            <span className="mx-2 text-[#F7C948]">→</span>
+            <span className="font-medium text-gray-900">Amazon ACoS Calculator</span>
+          </div>
+
           <div className="text-center">
             <h1 className="text-5xl font-bold tracking-tight text-gray-900">
               Amazon ACoS Calculator
             </h1>
 
+            {/* Less height between both lines */}
             <div className="mt-4 text-lg text-gray-600 leading-snug">
               <div>
                 Calculate your{" "}
@@ -60,7 +87,8 @@ export default function Home() {
 
           <div className="mt-10 flex justify-center">
             <div className="w-full max-w-3xl rounded-3xl bg-white p-8 shadow-sm border border-gray-100">
-              <div className="space-y-5">
+              {/* Form enables Enter key submit */}
+              <form onSubmit={onSubmit} className="space-y-5">
                 <div>
                   <div className="mb-2 font-medium text-gray-900">Ad Sales ($)</div>
                   <input
@@ -90,8 +118,7 @@ export default function Home() {
                 </div>
 
                 <button
-                  type="button"
-                  onClick={() => setShowResult(true)}
+                  type="submit"
                   disabled={!canCalculate}
                   className={[
                     "w-full h-12 rounded-full font-semibold transition",
@@ -103,35 +130,28 @@ export default function Home() {
                   Calculate ACoS
                 </button>
 
+                {/* Result only after submit/click */}
                 {showResult ? (
                   <div className="mt-6 rounded-2xl border border-gray-100 bg-[#fbf6e7] p-6 text-center">
-                    <div className="text-sm font-semibold text-gray-700">
-                      Your ACoS is
-                    </div>
+                    <div className="text-sm font-semibold text-gray-700">Your ACoS is</div>
                     <div className="mt-2 text-5xl font-bold text-gray-900">
                       {formatPct(acos)}
                     </div>
                     <div className="mt-2 text-sm text-gray-700">
                       Formula:{" "}
-                      <span className="font-semibold">
-                        (Ad Spend ÷ Ad Sales) × 100
-                      </span>
+                      <span className="font-semibold">(Ad Spend ÷ Ad Sales) × 100</span>
                     </div>
 
                     <button
                       type="button"
-                      onClick={() => {
-                        setAdSales("");
-                        setAdSpend("");
-                        setShowResult(false);
-                      }}
+                      onClick={onClear}
                       className="mt-4 text-sm font-semibold text-gray-700 hover:text-gray-900"
                     >
                       Clear
                     </button>
                   </div>
                 ) : null}
-              </div>
+              </form>
             </div>
           </div>
 
