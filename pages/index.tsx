@@ -186,7 +186,7 @@ export default function Home() {
 
                 {/* Result only after submit/click */}
                 {showResult ? (
-                    <div className="mt-6 rounded-2xl border border-gray-100 bg-[#D0E0C9] p-6 text-center">
+                  <div className="mt-6 rounded-2xl border border-gray-100 bg-[#D0E0C9] p-6 text-center">
                     <div className="text-sm font-semibold text-gray-700">
                       Your ACoS is
                     </div>
@@ -213,9 +213,12 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="mt-8 text-center text-xs text-gray-400">
-            Tip: A “good” ACoS depends on your margins and goals (ranking vs
-            profit).
+          {/* UPDATED TIP STYLING */}
+          <div className="mt-8 text-center">
+            <div className="mx-auto max-w-2xl text-sm text-gray-600 leading-snug">
+              Tip: A “good” ACoS depends on your margins and goals (ranking vs
+              profit).
+            </div>
           </div>
         </div>
       </div>
