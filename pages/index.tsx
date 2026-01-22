@@ -186,7 +186,7 @@ export default function Home() {
 
                 {/* Result only after submit/click */}
                 {showResult ? (
-                  <div className="mt-6 rounded-2xl border border-gray-100 bg-[#fbf6e7] p-6 text-center">
+                    <div className="mt-6 rounded-2xl border border-gray-100 bg-[#D0E0C9] p-6 text-center">
                     <div className="text-sm font-semibold text-gray-700">
                       Your ACoS is
                     </div>
